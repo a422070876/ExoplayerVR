@@ -350,9 +350,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected void onDisabled() {
-    if(timeListener != null){
-      timeListener.onRelease();
-    }
+
     currentWidth = Format.NO_VALUE;
     currentHeight = Format.NO_VALUE;
     currentPixelWidthHeightRatio = Format.NO_VALUE;
@@ -367,6 +365,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     try {
       super.onDisabled();
     } finally {
+      if(timeListener != null){
+        timeListener.onRelease();
+      }
       decoderCounters.ensureUpdated();
       eventDispatcher.disabled(decoderCounters);
     }

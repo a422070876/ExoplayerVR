@@ -64,16 +64,21 @@ public class GLRenderer {
         GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
         textureId = textures[0];
+        if(surfaceTexture != null){
+            surfaceTexture.release();
+        }
         surfaceTexture = new SurfaceTexture(textureId);
     }
 
     public SurfaceTexture getSurfaceTexture() {
         return surfaceTexture;
     }
+    public void onSurfaceDestroyed(){
+        GLES20.glDeleteProgram(programId);
+        GLES20.glDeleteTextures(1,textures,0);
+    }
     public void release(){
         if(surfaceTexture != null){
-            GLES20.glDeleteProgram(programId);
-            GLES20.glDeleteTextures(1,textures,0);
             surfaceTexture.release();
             surfaceTexture = null;
         }
