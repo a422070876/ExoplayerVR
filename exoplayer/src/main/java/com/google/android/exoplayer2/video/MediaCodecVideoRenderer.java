@@ -350,7 +350,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected void onDisabled() {
-
+    if(timeListener != null){
+      timeListener.onRelease();
+    }
     currentWidth = Format.NO_VALUE;
     currentHeight = Format.NO_VALUE;
     currentPixelWidthHeightRatio = Format.NO_VALUE;
@@ -365,9 +367,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     try {
       super.onDisabled();
     } finally {
-      if(timeListener != null){
-        timeListener.onRelease();
-      }
       decoderCounters.ensureUpdated();
       eventDispatcher.disabled(decoderCounters);
     }
@@ -389,12 +388,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void setSurface(Surface surface) throws ExoPlaybackException {
-    Surface s = null;
-    if(timeListener != null){
-      s = timeListener.onSurface(surface);
-    }
-    if(s != null){
-      surface = s;
+    if(timeListener != null && currentWidth != Format.NO_VALUE && currentHeight != Format.NO_VALUE){
+      surface = timeListener.onSurface(surface,currentWidth,currentHeight);
     }
     if (surface == null) {
       // Use a dummy surface if possible.
@@ -455,9 +450,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     codecMaxValues = getCodecMaxValues(codecInfo, format, streamFormats);
     MediaFormat mediaFormat = getMediaFormat(format, codecMaxValues, deviceNeedsAutoFrcWorkaround,
         tunnelingAudioSessionId);
-    if(timeListener != null){
-      timeListener.onSizeChanged(mediaFormat.getInteger(MediaFormat.KEY_WIDTH),mediaFormat.getInteger(MediaFormat.KEY_HEIGHT));
-    }
     if (surface == null) {
       Assertions.checkState(shouldUseDummySurface(codecInfo));
       if (dummySurface == null) {
@@ -466,8 +458,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       surface = dummySurface;
     }
     timeUsIndex = timeIndex = 0;
-
-    codec.configure(mediaFormat, surface, crypto, 0);
+    Surface s = surface;
+    if(timeListener != null){
+      s = timeListener.onSurface(surface,mediaFormat.getInteger(MediaFormat.KEY_WIDTH),mediaFormat.getInteger(MediaFormat.KEY_HEIGHT));
+      surface = s;
+    }
+    codec.configure(mediaFormat, s, crypto, 0);
 
     if (Util.SDK_INT >= 23 && tunneling) {
       tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(codec);

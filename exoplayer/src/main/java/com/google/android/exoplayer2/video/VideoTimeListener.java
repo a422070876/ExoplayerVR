@@ -8,8 +8,7 @@ import android.view.Surface;
 
 public interface VideoTimeListener {
     void onVideoTimeChanged(long time);
-    Surface onSurface(Surface surface);
-    void onSizeChanged(int width,int height);
+    Surface onSurface(Surface surface,int width,int height);
     void onRelease();
     void onStart();
     void onStop();

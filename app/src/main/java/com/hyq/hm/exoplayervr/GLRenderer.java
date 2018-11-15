@@ -3,7 +3,7 @@ package com.hyq.hm.exoplayervr;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES11Ext;
-import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.opengl.Matrix;
 
 /**
@@ -49,20 +49,20 @@ public class GLRenderer {
         String vertexShader = ShaderUtils.readRawTextFile(context, R.raw.vertext_shader);
         String fragmentShader= ShaderUtils.readRawTextFile(context, R.raw.fragment_sharder);
         programId=ShaderUtils.createProgram(vertexShader,fragmentShader);
-        aPositionHandle= GLES20.glGetAttribLocation(programId,"aPosition");
-        uMatrixHandle=GLES20.glGetUniformLocation(programId,"uMatrix");
-        uSTMatrixHandle=GLES20.glGetUniformLocation(programId,"uSTMatrix");
-        uTextureSamplerHandle=GLES20.glGetUniformLocation(programId,"sTexture");
-        aTextureCoordHandle=GLES20.glGetAttribLocation(programId,"aTexCoord");
+        aPositionHandle= GLES30.glGetAttribLocation(programId,"aPosition");
+        uMatrixHandle=GLES30.glGetUniformLocation(programId,"uMatrix");
+        uSTMatrixHandle=GLES30.glGetUniformLocation(programId,"uSTMatrix");
+        uTextureSamplerHandle=GLES30.glGetUniformLocation(programId,"sTexture");
+        aTextureCoordHandle=GLES30.glGetAttribLocation(programId,"aTexCoord");
 
         textures = new int[1];
-        GLES20.glGenTextures(1, textures, 0);
-        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textures[0]);
-        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
-        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
+        GLES30.glGenTextures(1, textures, 0);
+        GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textures[0]);
+        GLES30.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR);
+        GLES30.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR);
+        GLES30.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE);
+        GLES30.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE);
+        GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
         textureId = textures[0];
         if(surfaceTexture != null){
             surfaceTexture.release();
@@ -74,8 +74,8 @@ public class GLRenderer {
         return surfaceTexture;
     }
     public void onSurfaceDestroyed(){
-        GLES20.glDeleteProgram(programId);
-        GLES20.glDeleteTextures(1,textures,0);
+        GLES30.glDeleteProgram(programId);
+        GLES30.glDeleteTextures(1,textures,0);
     }
     public void release(){
         if(surfaceTexture != null){
@@ -107,9 +107,9 @@ public class GLRenderer {
         surfaceTexture.updateTexImage();
         surfaceTexture.getTransformMatrix(mSTMatrix);
 
-        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
-        GLES20.glViewport(0,0,screenWidth,screenHeight);
-        GLES20.glUseProgram(programId);
+        GLES30.glClear(GLES30.GL_DEPTH_BUFFER_BIT | GLES30.GL_COLOR_BUFFER_BIT);
+        GLES30.glViewport(0,0,screenWidth,screenHeight);
+        GLES30.glUseProgram(programId);
         Matrix.setIdentityM(modelMatrix,0);
 
         Matrix.rotateM(modelMatrix, 0, -xAngle, 1, 0, 0);
@@ -120,15 +120,15 @@ public class GLRenderer {
         Matrix.multiplyMM(mMVPMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0);
 
 
-        GLES20.glUniformMatrix4fv(uMatrixHandle,1,false,mMVPMatrix,0);
-        GLES20.glUniformMatrix4fv(uSTMatrixHandle,1,false,mSTMatrix,0);
+        GLES30.glUniformMatrix4fv(uMatrixHandle,1,false,mMVPMatrix,0);
+        GLES30.glUniformMatrix4fv(uSTMatrixHandle,1,false,mSTMatrix,0);
 
         sphere.uploadVerticesBuffer(aPositionHandle);
         sphere.uploadTexCoordinateBuffer(aTextureCoordHandle);
 
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,textureId);
-        GLES20.glUniform1i(uTextureSamplerHandle,0);
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
+        GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,textureId);
+        GLES30.glUniform1i(uTextureSamplerHandle,0);
 
         sphere.draw();
 
